@@ -79,32 +79,31 @@ class TranslatorPlugin extends obsidian_1.Plugin {
             }));
         });
     }
-    // async translateSelectedTextToDefault(editor: Editor, targetLang: string) {
-    //   const selectedText = editor.getSelection();
-    //   if (!selectedText) {
-    //     new Notice('Por favor, selecciona un texto primero.');
-    //     return;
-    //   }
-    //   const translation = await this.fetchTranslation(selectedText, targetLang);
-    //   if (translation) {
-    //     // const originalText = editor.getSelection();
-    //     // const translationText = `\n<!-- Traducción: ${translation} -->`;
-    //     // editor.replaceSelection(originalText + translationText);
-    //     this.createPopoverTranslation(editor, translation);
-    //   } else {
-    //     new Notice('No se pudo obtener la traducción.');
-    //   }
-    // }
     showTranslationText(editor, originalText, translation) {
         return __awaiter(this, void 0, void 0, function* () {
             if (translation) {
+                // const linkText = `[[${originalText} | ${translation}]]`; // Crear un enlace interno
+                // const translationPopover =
+                //   `[[${originalText}|Traducción]]` + `<!-- Traducción: ${translation} -->`; // Agregar la traducción como un comentario para referencia (opcional)
+                // editor.replaceSelection(linkText); // Reemplaza el texto seleccionado con el enlace
                 const translationText = `\n<!-- Traducción: ${translation} -->`;
+                // const link = this.createInternalLinkElement(originalText);
                 editor.replaceSelection(originalText + translationText);
+                // const view = this.app.workspace.getActiveViewOfType(MarkdownView);
+                // const popover = new HoverPopover(view, link);
             }
             else {
                 new obsidian_1.Notice('No se pudo obtener la traducción.');
             }
         });
+    }
+    createInternalLinkElement(originalText) {
+        // Crear un elemento de enlace (<a>) como un nodo del DOM
+        const linkElement = document.createElement('a');
+        linkElement.classList.add('internal-link');
+        linkElement.href = `#`; // Esto sería un link válido en Obsidian
+        linkElement.textContent = originalText;
+        return linkElement;
     }
     translateSelectedText(editor, targetLang) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -209,3 +208,13 @@ class TranslatorSettingTab extends obsidian_1.PluginSettingTab {
         })));
     }
 }
+// class TranslatorHoverPopOver extends HoverPopover {
+//   plugin: TranslatorPlugin;
+//   constructor(parent: HoverParent, targetEl: HTMLElement) {
+//     super(parent, targetEl);
+//     // this.plugin = plugin;
+//   }
+//   display(): void {
+//     const { hoverEl, state } = this;
+//   }
+// }

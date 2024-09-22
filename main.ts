@@ -1,4 +1,14 @@
-import { Editor, Plugin, PluginSettingTab, Setting, Notice, Menu, MarkdownView } from 'obsidian';
+import {
+  Editor,
+  Plugin,
+  PluginSettingTab,
+  Setting,
+  Notice,
+  Menu,
+  MarkdownView,
+  HoverPopover,
+  HoverParent,
+} from 'obsidian';
 
 // Interfaz para la configuración del plugin
 interface TranslatorSettings {
@@ -81,11 +91,30 @@ export default class TranslatorPlugin extends Plugin {
 
   async showTranslationText(editor: Editor, originalText: string, translation: string) {
     if (translation) {
+      // const linkText = `[[${originalText} | ${translation}]]`; // Crear un enlace interno
+      // const translationPopover =
+      //   `[[${originalText}|Traducción]]` + `<!-- Traducción: ${translation} -->`; // Agregar la traducción como un comentario para referencia (opcional)
+
+      // editor.replaceSelection(linkText); // Reemplaza el texto seleccionado con el enlace
       const translationText = `\n<!-- Traducción: ${translation} -->`;
+      // const link = this.createInternalLinkElement(originalText);
       editor.replaceSelection(originalText + translationText);
+
+      // const view = this.app.workspace.getActiveViewOfType(MarkdownView);
+      // const popover = new HoverPopover(view, link);
     } else {
       new Notice('No se pudo obtener la traducción.');
     }
+  }
+
+  createInternalLinkElement(originalText: string): HTMLElement {
+    // Crear un elemento de enlace (<a>) como un nodo del DOM
+    const linkElement = document.createElement('a');
+    linkElement.classList.add('internal-link');
+    linkElement.href = `#`; // Esto sería un link válido en Obsidian
+    linkElement.textContent = originalText;
+
+    return linkElement;
   }
 
   async translateSelectedText(editor: Editor, targetLang: string): Promise<string | null> {
@@ -200,3 +229,16 @@ class TranslatorSettingTab extends PluginSettingTab {
       );
   }
 }
+
+// class TranslatorHoverPopOver extends HoverPopover {
+//   plugin: TranslatorPlugin;
+
+//   constructor(parent: HoverParent, targetEl: HTMLElement) {
+//     super(parent, targetEl);
+//     // this.plugin = plugin;
+//   }
+
+//   display(): void {
+//     const { hoverEl, state } = this;
+//   }
+// }
