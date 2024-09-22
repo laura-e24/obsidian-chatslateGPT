@@ -23,6 +23,20 @@ class TranslatorPlugin extends obsidian_1.Plugin {
         return __awaiter(this, void 0, void 0, function* () {
             yield this.loadSettings();
             this.addSettingTab(new TranslatorSettingTab(this.app, this));
+            this.addCommand({
+                id: 'translate-selected-text',
+                name: 'Traducir texto seleccionado',
+                callback: () => {
+                    var _a;
+                    const editor = (_a = this.app.workspace.getActiveViewOfType(obsidian_1.MarkdownView)) === null || _a === void 0 ? void 0 : _a.editor;
+                    if (editor) {
+                        this.translateSelectedText(editor, this.settings.targetLanguage);
+                    }
+                    else {
+                        new obsidian_1.Notice('No hay un editor activo.');
+                    }
+                },
+            });
             this.registerEvent(this.app.workspace.on('editor-menu', (menu, editor) => {
                 menu.addItem(item => {
                     item
@@ -99,14 +113,22 @@ class TranslatorPlugin extends obsidian_1.Plugin {
                 new obsidian_1.Notice('Por favor, selecciona un texto primero.');
                 return null; // Retorna null si no hay texto seleccionado
             }
-            const translation = yield this.fetchTranslation(selectedText, targetLang);
-            if (translation) {
-                this.showTranslationText(editor, selectedText, translation);
-                return translation; // Retorna la traducción
+            // Mostrar el aviso de que está cargando
+            const loadingNotice = new obsidian_1.Notice('Cargando traducción...', 0); // 0 significa que el aviso se mantendrá visible
+            try {
+                const translation = yield this.fetchTranslation(selectedText, targetLang);
+                if (translation) {
+                    this.showTranslationText(editor, selectedText, translation);
+                    return translation;
+                }
+                else {
+                    new obsidian_1.Notice('No se pudo obtener la traducción.');
+                    return null;
+                }
             }
-            else {
-                new obsidian_1.Notice('No se pudo obtener la traducción.');
-                return null; // En caso de error, retorna null
+            finally {
+                // Eliminar el aviso de carga cuando finalice la traducción
+                loadingNotice.hide();
             }
         });
     }
