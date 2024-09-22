@@ -2,13 +2,11 @@ import { Editor, Plugin, PluginSettingTab, Setting, Notice, Menu } from 'obsidia
 
 // Interfaz para la configuración del plugin
 interface TranslatorSettings {
-  apiKey: string; // No será necesario en este caso, pero puedes dejarlo para futuras implementaciones
   sourceLanguage: string;
   targetLanguage: string;
 }
 
 const DEFAULT_SETTINGS: TranslatorSettings = {
-  apiKey: '',
   sourceLanguage: 'de', // Idioma de origen por defecto: alemán
   targetLanguage: 'es', // Idioma de destino por defecto: español
 };
