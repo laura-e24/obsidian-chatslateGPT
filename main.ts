@@ -1,4 +1,4 @@
-import { Editor, Plugin, PluginSettingTab, Setting, Notice, Menu } from 'obsidian';
+import { Editor, Plugin, PluginSettingTab, Setting, Notice, Menu, MarkdownView } from 'obsidian';
 
 // Interfaz para la configuración del plugin
 interface TranslatorSettings {
@@ -17,6 +17,18 @@ export default class TranslatorPlugin extends Plugin {
   async onload() {
     await this.loadSettings();
     this.addSettingTab(new TranslatorSettingTab(this.app, this));
+    this.addCommand({
+      id: 'translate-selected-text',
+      name: 'Traducir texto seleccionado',
+      callback: () => {
+        const editor = this.app.workspace.getActiveViewOfType(MarkdownView)?.editor;
+        if (editor) {
+          this.translateSelectedText(editor, this.settings.targetLanguage);
+        } else {
+          new Notice('No hay un editor activo.');
+        }
+      },
+    });
     this.registerEvent(
       this.app.workspace.on('editor-menu', (menu, editor) => {
         menu.addItem(item => {
@@ -66,25 +78,7 @@ export default class TranslatorPlugin extends Plugin {
       })
     );
   }
-  // async translateSelectedTextToDefault(editor: Editor, targetLang: string) {
-  //   const selectedText = editor.getSelection();
 
-  //   if (!selectedText) {
-  //     new Notice('Por favor, selecciona un texto primero.');
-  //     return;
-  //   }
-
-  //   const translation = await this.fetchTranslation(selectedText, targetLang);
-
-  //   if (translation) {
-  //     // const originalText = editor.getSelection();
-  //     // const translationText = `\n<!-- Traducción: ${translation} -->`;
-  //     // editor.replaceSelection(originalText + translationText);
-  //     this.createPopoverTranslation(editor, translation);
-  //   } else {
-  //     new Notice('No se pudo obtener la traducción.');
-  //   }
-  // }
   async showTranslationText(editor: Editor, originalText: string, translation: string) {
     if (translation) {
       const translationText = `\n<!-- Traducción: ${translation} -->`;
@@ -102,15 +96,22 @@ export default class TranslatorPlugin extends Plugin {
       return null; // Retorna null si no hay texto seleccionado
     }
 
-    const translation = await this.fetchTranslation(selectedText, targetLang);
+    // Mostrar el aviso de que está cargando
+    const loadingNotice = new Notice('Cargando traducción...', 0); // 0 significa que el aviso se mantendrá visible
 
-    if (translation) {
-      this.showTranslationText(editor, selectedText, translation);
+    try {
+      const translation = await this.fetchTranslation(selectedText, targetLang);
 
-      return translation; // Retorna la traducción
-    } else {
-      new Notice('No se pudo obtener la traducción.');
-      return null; // En caso de error, retorna null
+      if (translation) {
+        this.showTranslationText(editor, selectedText, translation);
+        return translation;
+      } else {
+        new Notice('No se pudo obtener la traducción.');
+        return null;
+      }
+    } finally {
+      // Eliminar el aviso de carga cuando finalice la traducción
+      loadingNotice.hide();
     }
   }
 
