@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "ES6",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "outDir": "./", // Asegúrate de que el directorio de salida sea correcto
+  },
+ "include": ["**/*.ts"],
+  "exclude": ["node_modules", "**/*.spec.ts"]
+}
