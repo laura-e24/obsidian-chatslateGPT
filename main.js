@@ -11,7 +11,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const obsidian_1 = require("obsidian");
 const DEFAULT_SETTINGS = {
-    apiKey: '',
     sourceLanguage: 'de', // Idioma de origen por defecto: alemán
     targetLanguage: 'es', // Idioma de destino por defecto: español
 };
